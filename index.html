@@ -68,6 +68,8 @@ body{
   font-size:16px; line-height:1.7;
   background:var(--bg); color:var(--text);
   transition:background .25s ease, color .25s ease;
+  word-break:keep-all;          /* 한국어: 단어(어절) 중간에서 줄바꿈 금지 */
+  overflow-wrap:break-word;     /* 긴 URL·이메일만 예외적으로 끊어 넘침 방지 */
 }
 img,svg{max-width:100%}
 a{color:var(--accent)}
@@ -351,8 +353,8 @@ footer .px{font-size:11px;color:var(--accent);margin-top:6px}
 
   <div class="hero-links">
     <a class="btn primary" href="#projects">퀘스트 로그 보기</a>
-    <a class="btn" href="https://github.com/yongchaeeun" target="_blank" rel="noopener">GitHub</a>
-    <a class="btn" href="mailto:aion30206@ainuri.kr">이메일</a>
+    <a class="btn" href="https://github.com/sdfkel-dev" target="_blank" rel="noopener">GitHub</a>
+    <a class="btn" href="mailto:yongchaeeun02@gmail.com">이메일</a>
   </div>
 
   <a class="press-start blink" href="#about">▼ PRESS START ▼</a>
@@ -519,21 +521,21 @@ footer .px{font-size:11px;color:var(--accent);margin-top:6px}
           <svg viewBox="0 0 96 40" role="img" aria-label="미니미 프로젝트 픽셀 아트: 바탕화면 위를 걷는 작은 캐릭터와 말풍선" shape-rendering="crispEdges">
             <rect width="96" height="40" fill="var(--panel-deep)"/>
             <!-- 데스크탑 창들 -->
-            <rect x="6" y="6" width="26" height="18" fill="var(--panel)" stroke="var(--line)" stroke-width="1"/>
-            <rect x="6" y="6" width="26" height="4" fill="var(--line)"/>
-            <rect x="38" y="10" width="30" height="16" fill="var(--panel)" stroke="var(--line)" stroke-width="1"/>
-            <rect x="38" y="10" width="30" height="4" fill="var(--line)"/>
-            <!-- 미니 캐릭터 -->
-            <rect x="76" y="22" width="8" height="6" fill="var(--accent)"/>
-            <rect x="77" y="18" width="6" height="4" fill="#f2d5b8"/>
-            <rect x="78" y="19" width="1" height="1" fill="#1d2440"/>
-            <rect x="81" y="19" width="1" height="1" fill="#1d2440"/>
-            <rect x="77" y="28" width="2" height="4" fill="#3a3f66"/>
-            <rect x="81" y="28" width="2" height="4" fill="#3a3f66"/>
-            <!-- 말풍선 -->
-            <rect x="60" y="14" width="22" height="8" fill="var(--text)"/>
-            <rect x="74" y="22" width="2" height="2" fill="var(--text)"/>
-            <rect x="63" y="17" width="10" height="2" fill="var(--panel-deep)"/>
+            <rect x="6" y="6" width="24" height="16" fill="var(--panel)" stroke="var(--line)" stroke-width="1"/>
+            <rect x="6" y="6" width="24" height="4" fill="var(--line)"/>
+            <rect x="34" y="12" width="20" height="12" fill="var(--panel)" stroke="var(--line)" stroke-width="1"/>
+            <rect x="34" y="12" width="20" height="4" fill="var(--line)"/>
+            <!-- 말풍선 (캐릭터 머리 위, 겹침 없음) -->
+            <rect x="58" y="8" width="18" height="8" fill="var(--text)"/>
+            <rect x="61" y="11" width="12" height="2" fill="var(--panel-deep)"/>
+            <rect x="74" y="16" width="2" height="2" fill="var(--text)"/>
+            <!-- 미니 캐릭터 (작업표시줄 위에 서 있음) -->
+            <rect x="77" y="20" width="6" height="4" fill="#f2d5b8"/>
+            <rect x="78" y="21" width="1" height="1" fill="#1d2440"/>
+            <rect x="81" y="21" width="1" height="1" fill="#1d2440"/>
+            <rect x="76" y="24" width="8" height="6" fill="var(--accent)"/>
+            <rect x="77" y="30" width="2" height="4" fill="#3a3f66"/>
+            <rect x="81" y="30" width="2" height="4" fill="#3a3f66"/>
             <!-- 바닥(작업표시줄) -->
             <rect x="0" y="34" width="96" height="6" fill="var(--line)"/>
           </svg>
@@ -567,7 +569,7 @@ footer .px{font-size:11px;color:var(--accent);margin-top:6px}
             <span class="tag">SSE 스트리밍</span><span class="tag">IPC</span>
           </div>
           <div class="quest-links">
-            <a href="https://github.com/yongchaeeun/desktop-pet" target="_blank" rel="noopener">GitHub 저장소 →</a>
+            <a href="https://github.com/sdfkel-dev/desktop-pet" target="_blank" rel="noopener">GitHub 저장소 →</a>
           </div>
         </div>
       </article>
@@ -599,7 +601,7 @@ footer .px{font-size:11px;color:var(--accent);margin-top:6px}
             <span class="quest-status clear">CLEAR (M2)</span>
           </div>
           <h3>RP 채팅 프론트엔드 (rp-frontend)</h3>
-          <p class="quest-one">실리태번·마리나라 계열을 참고해 밑바닥부터 만든 AI 롤플레잉 채팅 웹앱</p>
+          <p class="quest-one">실리태번 계열을 참고해 밑바닥부터 만든 AI 롤플레잉 채팅 웹앱</p>
 
           <div class="quest-www">
             <div class="www-row">
@@ -622,7 +624,7 @@ footer .px{font-size:11px;color:var(--accent);margin-top:6px}
             <span class="tag">LLM API 연동</span>
           </div>
           <div class="quest-links">
-            <a href="https://github.com/yongchaeeun/rp-frontend" target="_blank" rel="noopener">GitHub 저장소 →</a>
+            <a href="https://github.com/sdfkel-dev/rp-frontend" target="_blank" rel="noopener">GitHub 저장소 →</a>
           </div>
         </div>
       </article>
@@ -686,7 +688,7 @@ footer .px{font-size:11px;color:var(--accent);margin-top:6px}
             <span class="tag">SQL</span><span class="tag">DB 스키마 설계</span>
           </div>
           <div class="quest-links">
-            <a href="https://github.com/yongchaeeun/sql-game" target="_blank" rel="noopener">GitHub 저장소 →</a>
+            <a href="https://github.com/sdfkel-dev/sql-game" target="_blank" rel="noopener">GitHub 저장소 →</a>
           </div>
         </div>
       </article>
@@ -722,13 +724,13 @@ footer .px{font-size:11px;color:var(--accent);margin-top:6px}
       </p>
 
       <div class="contact-rows">
-        <a href="mailto:aion30206@ainuri.kr">
-          <span class="k">EMAIL</span> aion30206@ainuri.kr
+        <a href="mailto:yongchaeeun02@gmail.com">
+          <span class="k">EMAIL</span> yongchaeeun02@gmail.com
         </a>
-        <a href="https://github.com/yongchaeeun" target="_blank" rel="noopener">
-          <span class="k">GITHUB</span> github.com/yongchaeeun
+        <a href="https://github.com/sdfkel-dev" target="_blank" rel="noopener">
+          <span class="k">GITHUB</span> github.com/sdfkel-dev
         </a>
-        <a href="https://yongchaeeun.tistory.com" target="_blank" rel="noopener">
+        <a href="https://c-dev-record.tistory.com" target="_blank" rel="noopener">
           <span class="k">BLOG</span> 학습 기록 블로그 (트러블슈팅 노트)
         </a>
       </div>
