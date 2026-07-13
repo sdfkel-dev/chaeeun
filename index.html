@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>용채은 — 클라우드 엔지니어 포트폴리오</title>
+<meta name="description" content="IT 클라우드 엔지니어링 지망생 용채은의 포트폴리오. AWS·Linux 기반 인프라 학습과 Electron·React 프로젝트를 RPG 게임 UI 컨셉으로 소개합니다.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="용채은 — 클라우드 엔지니어 포트폴리오">
+<meta property="og:description" content="구름 위에 인프라를 짓는 모험가. AWS·Linux·Python 기반 프로젝트 퀘스트 로그.">
+<meta property="og:locale" content="ko_KR">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='3' y='6' width='10' height='6' fill='%237ec8ff'/><rect x='5' y='4' width='6' height='2' fill='%237ec8ff'/><rect x='1' y='8' width='2' height='4' fill='%237ec8ff'/><rect x='13' y='8' width='2' height='4' fill='%237ec8ff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Galmuri11:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   디자인 토큰 — 다크(기본) / 라이트
+   ============================================================ */
+:root{
+  --px-font:'Galmuri11', monospace;          /* 제목·장식 전용 */
+  --body-font:'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+
+  /* 밤하늘 (다크) */
+  --bg:#0d1021;
+  --bg-soft:#131735;
+  --panel:#181d3f;
+  --panel-deep:#10142e;
+  --line:#3d477e;
+  --line-bright:#7ec8ff;
+  --text:#e8ecff;
+  --text-dim:#9aa3cf;
+  --accent:#7ec8ff;        /* 구름 하늘색 */
+  --accent2:#ffd166;       /* 골드(퀘스트/보상) */
+  --accent3:#8affc1;       /* 상태 OK 그린 */
+  --danger:#ff8fa3;
+  --gauge-empty:#232a55;
+  --shadow:rgba(0,0,0,.5);
+  --hero-sky1:#0d1021; --hero-sky2:#1a2150;
+}
+[data-theme="light"]{
+  /* 낮하늘 (라이트) */
+  --bg:#eef3fb;
+  --bg-soft:#e2eaf7;
+  --panel:#ffffff;
+  --panel-deep:#f2f6fd;
+  --line:#8fa3c8;
+  --line-bright:#2a6fb0;
+  --text:#1d2440;
+  --text-dim:#55618a;
+  --accent:#2a6fb0;
+  --accent2:#b07d10;
+  --accent3:#1d8a5a;
+  --danger:#c2455e;
+  --gauge-empty:#d4ddef;
+  --shadow:rgba(29,36,64,.18);
+  --hero-sky1:#cfe3fa; --hero-sky2:#eef3fb;
+}
+
+/* ============================================================
+   베이스
+   ============================================================ */
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{
+  font-family:var(--body-font);
+  font-size:16px; line-height:1.7;
+  background:var(--bg); color:var(--text);
+  transition:background .25s ease, color .25s ease;
+}
+img,svg{max-width:100%}
+a{color:var(--accent)}
+::selection{background:var(--accent);color:var(--bg)}
+
+h1,h2,h3,.px{font-family:var(--px-font);letter-spacing:.02em}
+section{padding:88px 20px}
+.wrap{max-width:960px;margin:0 auto}
+
+/* 섹션 타이틀 — 퀘스트 배너 스타일 */
+.sec-head{text-align:center;margin-bottom:48px}
+.sec-tag{
+  display:inline-block;font-family:var(--px-font);font-size:12px;
+  color:var(--accent2);border:2px solid var(--accent2);
+  padding:4px 12px;margin-bottom:14px;
+}
+.sec-title{font-size:clamp(22px,4vw,32px);color:var(--text)}
+.sec-title .arrow{color:var(--accent)}
+
+/* RPG 창(윈도우) 공통 — 이중 픽셀 보더 */
+.win{
+  background:var(--panel);
+  border:3px solid var(--line-bright);
+  box-shadow:0 0 0 3px var(--panel), 0 0 0 5px var(--line), 8px 8px 0 var(--shadow);
+  padding:24px;
+}
+
+/* 스크롤 등장 (절제된 페이드업 1회) */
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+.reveal.on{opacity:1;transform:none}
+@media (prefers-reduced-motion: reduce){
+  .reveal{opacity:1;transform:none;transition:none}
+  .blink,.cursor{animation:none !important}
+  html{scroll-behavior:auto}
+}
+
+/* ============================================================
+   내비게이션
+   ============================================================ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter:blur(6px);
+  border-bottom:2px solid var(--line);
+}
+.nav-in{max-width:960px;margin:0 auto;display:flex;align-items:center;gap:8px;padding:10px 20px}
+.logo{font-family:var(--px-font);font-size:15px;color:var(--text);text-decoration:none;margin-right:auto}
+.logo b{color:var(--accent)}
+.nav-links{display:flex;gap:2px;flex-wrap:wrap}
+.nav-links a{
+  font-family:var(--px-font);font-size:12px;text-decoration:none;
+  color:var(--text-dim);padding:6px 10px;
+}
+.nav-links a:hover{color:var(--accent);background:var(--bg-soft)}
+#themeToggle{
+  font-family:var(--px-font);font-size:12px;cursor:pointer;
+  background:var(--panel);color:var(--text);
+  border:2px solid var(--line-bright);padding:6px 10px;
+  box-shadow:2px 2px 0 var(--shadow);
+}
+#themeToggle:active{transform:translate(2px,2px);box-shadow:none}
+
+/* ============================================================
+   1. HERO — 게임 타이틀 스크린
+   ============================================================ */
+.hero{
+  min-height:100svh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;
+  background:linear-gradient(180deg,var(--hero-sky1) 0%,var(--hero-sky2) 70%,var(--bg) 100%);
+  position:relative;overflow:hidden;padding-top:96px;
+}
+/* 밤하늘 픽셀 별 (다크에서만) */
+.stars{position:absolute;inset:0;pointer-events:none;
+  background-image:
+    radial-gradient(2px 2px at 12% 20%, var(--text-dim) 50%, transparent 51%),
+    radial-gradient(2px 2px at 78% 12%, var(--text-dim) 50%, transparent 51%),
+    radial-gradient(3px 3px at 55% 30%, var(--accent2) 50%, transparent 51%),
+    radial-gradient(2px 2px at 30% 45%, var(--text-dim) 50%, transparent 51%),
+    radial-gradient(2px 2px at 90% 40%, var(--text-dim) 50%, transparent 51%),
+    radial-gradient(3px 3px at 20% 70%, var(--text-dim) 50%, transparent 51%),
+    radial-gradient(2px 2px at 65% 65%, var(--accent2) 50%, transparent 51%);
+  opacity:.8;
+}
+[data-theme="light"] .stars{opacity:.25}
+.hero-art{width:150px;height:auto;margin-bottom:24px;image-rendering:pixelated}
+.hero h1{font-size:clamp(30px,7vw,54px);color:var(--text);text-shadow:4px 4px 0 var(--shadow)}
+.hero h1 .cloud-word{color:var(--accent)}
+.hero-sub{margin-top:16px;font-size:clamp(15px,2.4vw,18px);color:var(--text-dim);max-width:560px}
+.hero-links{margin-top:32px;display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.btn{
+  font-family:var(--px-font);font-size:14px;text-decoration:none;
+  padding:12px 22px;border:3px solid var(--line-bright);
+  background:var(--panel);color:var(--text);
+  box-shadow:4px 4px 0 var(--shadow);display:inline-block;
+}
+.btn:hover{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--shadow)}
+.btn.primary{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.btn.primary:hover{background:var(--accent2);border-color:var(--accent2)}
+.press-start{
+  margin-top:56px;font-family:var(--px-font);font-size:14px;
+  color:var(--accent2);text-decoration:none;display:inline-block;
+}
+.blink{animation:blink 1.2s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* ============================================================
+   2. ABOUT — 캐릭터 스테이터스 창
+   ============================================================ */
+.about-grid{display:grid;grid-template-columns:220px 1fr;gap:28px;align-items:start}
+.char-card{text-align:center;padding:20px}
+.char-card svg{width:120px;height:auto;image-rendering:pixelated}
+.char-name{font-family:var(--px-font);font-size:16px;margin-top:12px;color:var(--text)}
+.char-class{font-family:var(--px-font);font-size:11px;color:var(--accent2);margin-top:4px}
+.char-stats{list-style:none;margin-top:16px;text-align:left;font-size:14px;color:var(--text-dim)}
+.char-stats li{display:flex;justify-content:space-between;padding:4px 2px;border-bottom:1px dashed var(--line)}
+.char-stats b{color:var(--text);font-weight:500}
+.about-body p{margin-bottom:14px}
+.about-body p:last-child{margin-bottom:0}
+.dialog-name{
+  display:inline-block;font-family:var(--px-font);font-size:12px;
+  background:var(--accent);color:var(--bg);padding:2px 10px;margin-bottom:14px;
+}
+.cert-list{list-style:none;margin-top:18px;display:grid;gap:10px}
+.cert-list li{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  background:var(--panel-deep);border:2px solid var(--line);padding:10px 14px;font-size:15px;
+}
+.badge{font-family:var(--px-font);font-size:10px;padding:3px 8px;border:2px solid currentColor;white-space:nowrap}
+.badge.done{color:var(--accent3)}
+.badge.wip{color:var(--accent2)}
+
+/* ============================================================
+   3. SKILLS — 스킬 트리
+   ============================================================ */
+.skill-groups{display:grid;gap:24px}
+.skill-group h3{font-size:15px;color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.skill-group h3 .ico{width:20px;height:20px;image-rendering:pixelated}
+.skill-row{display:grid;grid-template-columns:130px 1fr 96px;gap:12px;align-items:center;margin-bottom:12px}
+.skill-name{font-size:15px;font-weight:500}
+.gauge{
+  height:18px;background:var(--gauge-empty);
+  border:2px solid var(--line);position:relative;overflow:hidden;
+}
+.gauge i{
+  position:absolute;inset:0;width:var(--v,50%);
+  background:repeating-linear-gradient(90deg,var(--accent) 0 12px,color-mix(in srgb,var(--accent) 70%,var(--bg)) 12px 14px);
+}
+.skill-lv{font-family:var(--px-font);font-size:10px;color:var(--text-dim);text-align:right}
+.skill-note{margin-top:18px;font-size:13px;color:var(--text-dim);border-top:1px dashed var(--line);padding-top:12px}
+
+/* ============================================================
+   4. PROJECTS — 퀘스트 로그
+   ============================================================ */
+.quests{display:grid;gap:36px}
+.quest{padding:0;overflow:hidden}
+.quest-shot{
+  border-bottom:3px solid var(--line-bright);
+  background:var(--panel-deep);line-height:0;
+}
+.quest-shot svg{width:100%;height:auto;display:block;image-rendering:pixelated}
+.quest-body{padding:24px}
+.quest-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.quest-rank{
+  font-family:var(--px-font);font-size:11px;color:var(--bg);
+  background:var(--accent2);padding:3px 9px;
+}
+.quest-status{font-family:var(--px-font);font-size:10px;padding:3px 8px;border:2px solid currentColor}
+.quest-status.clear{color:var(--accent3)}
+.quest-status.ing{color:var(--accent2)}
+.quest h3{font-size:19px;margin:6px 0 4px}
+.quest-one{color:var(--text-dim);font-size:15px;margin-bottom:18px}
+.quest-www{display:grid;gap:12px;margin-bottom:18px}
+.www-row{display:grid;grid-template-columns:76px 1fr;gap:12px;font-size:15px}
+.www-key{
+  font-family:var(--px-font);font-size:11px;color:var(--accent);
+  padding-top:3px;white-space:nowrap;
+}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.tag{
+  font-family:var(--px-font);font-size:10px;color:var(--text-dim);
+  background:var(--panel-deep);border:2px solid var(--line);padding:4px 9px;
+}
+.quest-links a{
+  font-family:var(--px-font);font-size:12px;text-decoration:none;
+  color:var(--accent);border-bottom:2px solid var(--accent);padding-bottom:2px;
+}
+.quest-links a:hover{color:var(--accent2);border-color:var(--accent2)}
+
+/* ============================================================
+   5. CONTACT — 세이브 포인트
+   ============================================================ */
+.contact-win{text-align:center;max-width:640px;margin:0 auto;padding:40px 28px}
+.save-crystal{width:64px;height:auto;image-rendering:pixelated;margin-bottom:18px}
+.contact-win h3{font-size:20px;margin-bottom:10px}
+.contact-win .save-q{color:var(--text-dim);margin-bottom:28px}
+.contact-rows{display:grid;gap:12px;max-width:420px;margin:0 auto;text-align:left}
+.contact-rows a{
+  display:flex;align-items:center;gap:12px;text-decoration:none;
+  background:var(--panel-deep);border:2px solid var(--line);
+  color:var(--text);padding:12px 16px;font-size:15px;
+}
+.contact-rows a:hover{border-color:var(--accent);color:var(--accent)}
+.contact-rows .k{font-family:var(--px-font);font-size:11px;color:var(--accent2);min-width:64px}
+.cursor{display:inline-block;width:10px;height:16px;background:var(--accent);vertical-align:-2px;margin-left:6px;animation:blink 1s steps(1) infinite}
+
+footer{
+  border-top:2px solid var(--line);padding:28px 20px;text-align:center;
+  font-size:13px;color:var(--text-dim);
+}
+footer .px{font-size:11px;color:var(--accent);margin-top:6px}
+
+/* ============================================================
+   반응형 (360px까지)
+   ============================================================ */
+@media (max-width:720px){
+  section{padding:64px 16px}
+  .about-grid{grid-template-columns:1fr}
+  .char-card{max-width:300px;margin:0 auto}
+  .skill-row{grid-template-columns:1fr;gap:6px}
+  .skill-lv{text-align:left}
+  .www-row{grid-template-columns:1fr;gap:2px}
+  .nav-links a{padding:6px 7px;font-size:11px}
+}
+@media (max-width:420px){
+  .win{padding:18px 14px}
+  .quest-body{padding:18px 14px}
+  .nav-links{display:none}   /* 초소형 화면: 로고+토글만 */
+}
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav aria-label="주 메뉴">
+  <div class="nav-in">
+    <a class="logo" href="#hero">YONG<b>.CLOUD</b></a>
+    <div class="nav-links">
+      <a href="#about">ABOUT</a>
+      <a href="#skills">SKILLS</a>
+      <a href="#projects">QUESTS</a>
+      <a href="#contact">SAVE</a>
+    </div>
+    <button id="themeToggle" aria-label="다크/라이트 모드 전환">◐ MODE</button>
+  </div>
+</nav>
+
+<main>
+
+<!-- ============ 1. HERO — 타이틀 스크린 ============ -->
+<header class="hero" id="hero">
+  <div class="stars" aria-hidden="true"></div>
+
+  <!-- 픽셀 구름 + 서버랙 자체 제작 SVG -->
+  <svg class="hero-art" viewBox="0 0 60 44" role="img" aria-label="구름 속 서버를 표현한 픽셀 아트" shape-rendering="crispEdges">
+    <!-- 구름 -->
+    <rect x="10" y="10" width="40" height="18" fill="var(--accent)" opacity=".25"/>
+    <rect x="6"  y="14" width="48" height="14" fill="var(--accent)" opacity=".25"/>
+    <rect x="16" y="6"  width="18" height="4"  fill="var(--accent)" opacity=".25"/>
+    <rect x="10" y="10" width="40" height="2" fill="var(--accent)"/>
+    <rect x="6"  y="14" width="4"  height="14" fill="var(--accent)"/>
+    <rect x="50" y="14" width="4"  height="14" fill="var(--accent)"/>
+    <rect x="6"  y="26" width="48" height="2" fill="var(--accent)"/>
+    <!-- 서버 랙 -->
+    <rect x="22" y="13" width="16" height="12" fill="var(--panel-deep)" stroke="var(--line-bright)" stroke-width="1"/>
+    <rect x="24" y="15" width="8" height="2" fill="var(--accent)"/>
+    <rect x="24" y="19" width="8" height="2" fill="var(--accent)"/>
+    <rect x="34" y="15" width="2" height="2" fill="var(--accent3)"/>
+    <rect x="34" y="19" width="2" height="2" fill="var(--accent2)"/>
+    <!-- 비 대신 데이터 내리는 픽셀 -->
+    <rect x="14" y="32" width="2" height="4" fill="var(--accent)" opacity=".7"/>
+    <rect x="28" y="34" width="2" height="4" fill="var(--accent)" opacity=".7"/>
+    <rect x="42" y="31" width="2" height="4" fill="var(--accent)" opacity=".7"/>
+  </svg>
+
+  <h1>용채은<br><span class="cloud-word">CLOUD ENGINEER</span></h1>
+  <p class="hero-sub">
+    구름 위에 인프라를 짓는 신입 모험가.<br>
+    AWS와 Linux를 익히며, 직접 만든 서비스를 직접 배포하는 엔지니어를 목표로 합니다.
+  </p>
+
+  <div class="hero-links">
+    <a class="btn primary" href="#projects">퀘스트 로그 보기</a>
+    <a class="btn" href="https://github.com/yongchaeeun" target="_blank" rel="noopener">GitHub</a>
+    <a class="btn" href="mailto:aion30206@ainuri.kr">이메일</a>
+  </div>
+
+  <a class="press-start blink" href="#about">▼ PRESS START ▼</a>
+</header>
+
+<!-- ============ 2. ABOUT — 캐릭터 스테이터스 ============ -->
+<section id="about">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-tag">STATUS</span>
+      <h2 class="sec-title"><span class="arrow">▶</span> 캐릭터 정보</h2>
+    </div>
+
+    <div class="about-grid">
+      <!-- 캐릭터 카드 -->
+      <div class="win char-card reveal">
+        <svg viewBox="0 0 32 40" role="img" aria-label="픽셀 캐릭터 아바타" shape-rendering="crispEdges">
+          <!-- 머리 -->
+          <rect x="10" y="4" width="12" height="10" fill="#3a3f66"/>
+          <rect x="8" y="6" width="2" height="6" fill="#3a3f66"/>
+          <rect x="22" y="6" width="2" height="6" fill="#3a3f66"/>
+          <rect x="10" y="8" width="12" height="6" fill="#f2d5b8"/>
+          <rect x="13" y="10" width="2" height="2" fill="#1d2440"/>
+          <rect x="18" y="10" width="2" height="2" fill="#1d2440"/>
+          <!-- 몸통 (엔지니어 후드) -->
+          <rect x="9" y="16" width="14" height="12" fill="var(--accent)"/>
+          <rect x="13" y="18" width="6" height="6" fill="var(--panel-deep)"/>
+          <rect x="14" y="19" width="4" height="1" fill="var(--accent3)"/>
+          <rect x="14" y="21" width="4" height="1" fill="var(--accent2)"/>
+          <!-- 팔다리 -->
+          <rect x="6" y="17" width="3" height="8" fill="var(--accent)"/>
+          <rect x="23" y="17" width="3" height="8" fill="var(--accent)"/>
+          <rect x="11" y="28" width="4" height="8" fill="#3a3f66"/>
+          <rect x="17" y="28" width="4" height="8" fill="#3a3f66"/>
+        </svg>
+        <div class="char-name">용채은</div>
+        <div class="char-class">CLASS: CLOUD ENGINEER (지망)</div>
+        <ul class="char-stats">
+          <li>주 무기 <b>AWS · Linux</b></li>
+          <li>보조 무기 <b>Python · React</b></li>
+          <li>파티 성향 <b>기록·공유형</b></li>
+          <li>현재 퀘스트 <b>취업 준비</b></li>
+        </ul>
+      </div>
+
+      <!-- 대화창 스타일 소개 -->
+      <div class="win about-body reveal">
+        <span class="dialog-name">용채은</span>
+        <p>
+          "만들어 보고, 부수어 보고, 다시 세우면서" 배우는 것을 좋아합니다.
+          웹 프론트엔드에서 데스크탑 앱, 데이터베이스까지 직접 프로젝트를 완주하며
+          결국 서비스가 살아 숨쉬는 곳은 <strong>인프라</strong>라는 결론에 닿아
+          클라우드 엔지니어링을 진로로 정했습니다.
+        </p>
+        <p>
+          Linux 환경에서 서버를 다루고 AWS 핵심 서비스를 학습하며,
+          제가 만든 프로젝트를 제 손으로 배포·운영하는 것을 다음 목표로 삼고 있습니다.
+          문제를 만나면 원인을 기록하고, 해결 과정을 문서로 남기는 습관이 있습니다.
+        </p>
+
+        <ul class="cert-list">
+          <li>
+            <span class="badge wip">준비 중</span>
+            AWS Certified Solutions Architect – Associate (SAA) — 2026년 하반기 취득 목표
+          </li>
+          <li>
+            <span class="badge wip">준비 중</span>
+            리눅스마스터 2급 — 필기 학습 진행 중
+          </li>
+          <li>
+            <span class="badge done">수료</span>
+            클라우드 엔지니어링 실무 교육 과정 (Linux·네트워크·AWS 기초)
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. SKILLS — 스킬 트리 ============ -->
+<section id="skills">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-tag">SKILL TREE</span>
+      <h2 class="sec-title"><span class="arrow">▶</span> 장비 &amp; 스킬</h2>
+    </div>
+
+    <div class="win reveal">
+      <div class="skill-groups">
+
+        <div class="skill-group">
+          <h3>
+            <svg class="ico" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="6" width="12" height="6" fill="var(--accent)"/><rect x="4" y="4" width="8" height="2" fill="var(--accent)"/></svg>
+            클라우드 / 인프라
+          </h3>
+          <div class="skill-row">
+            <span class="skill-name">AWS</span>
+            <div class="gauge" role="img" aria-label="AWS 숙련도: 학습 및 실습 단계"><i style="--v:55%"></i></div>
+            <span class="skill-lv">실습·자격증 준비</span>
+          </div>
+          <div class="skill-row">
+            <span class="skill-name">Linux</span>
+            <div class="gauge" role="img" aria-label="Linux 숙련도: 일상 사용 단계"><i style="--v:65%"></i></div>
+            <span class="skill-lv">일상 사용</span>
+          </div>
+        </div>
+
+        <div class="skill-group">
+          <h3>
+            <svg class="ico" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="3" width="4" height="10" fill="var(--accent)"/><rect x="9" y="3" width="4" height="4" fill="var(--accent2)"/><rect x="9" y="9" width="4" height="4" fill="var(--accent3)"/></svg>
+            언어 / 프레임워크
+          </h3>
+          <div class="skill-row">
+            <span class="skill-name">Python</span>
+            <div class="gauge" role="img" aria-label="Python 숙련도: 프로젝트 적용 단계"><i style="--v:70%"></i></div>
+            <span class="skill-lv">프로젝트 적용</span>
+          </div>
+          <div class="skill-row">
+            <span class="skill-name">HTML / CSS</span>
+            <div class="gauge" role="img" aria-label="HTML CSS 숙련도: 프로젝트 적용 단계"><i style="--v:70%"></i></div>
+            <span class="skill-lv">프로젝트 적용</span>
+          </div>
+          <div class="skill-row">
+            <span class="skill-name">React (JSX)</span>
+            <div class="gauge" role="img" aria-label="React 숙련도: 프로젝트 적용 단계"><i style="--v:60%"></i></div>
+            <span class="skill-lv">프로젝트 적용</span>
+          </div>
+        </div>
+
+        <div class="skill-group">
+          <h3>
+            <svg class="ico" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="3" width="10" height="3" fill="var(--accent)"/><rect x="3" y="7" width="10" height="3" fill="var(--accent)" opacity=".7"/><rect x="3" y="11" width="10" height="3" fill="var(--accent)" opacity=".4"/></svg>
+            데이터베이스
+          </h3>
+          <div class="skill-row">
+            <span class="skill-name">MariaDB</span>
+            <div class="gauge" role="img" aria-label="MariaDB 숙련도: 프로젝트 적용 단계"><i style="--v:60%"></i></div>
+            <span class="skill-lv">프로젝트 적용</span>
+          </div>
+        </div>
+
+      </div>
+      <p class="skill-note">
+        ※ 게이지는 % 점수가 아니라 <strong>사용 경험 단계</strong>(학습 중 → 실습 → 프로젝트 적용 → 일상 사용)를
+        나타내는 자기 평가입니다. 근거는 아래 퀘스트 로그(프로젝트)에서 확인하실 수 있습니다.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. PROJECTS — 퀘스트 로그 ============ -->
+<section id="projects">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-tag">QUEST LOG</span>
+      <h2 class="sec-title"><span class="arrow">▶</span> 완료한 퀘스트</h2>
+    </div>
+
+    <div class="quests">
+
+      <!-- 퀘스트 1: 미니미 AI 도구 -->
+      <article class="win quest reveal">
+        <div class="quest-shot">
+          <svg viewBox="0 0 96 40" role="img" aria-label="미니미 프로젝트 픽셀 아트: 바탕화면 위를 걷는 작은 캐릭터와 말풍선" shape-rendering="crispEdges">
+            <rect width="96" height="40" fill="var(--panel-deep)"/>
+            <!-- 데스크탑 창들 -->
+            <rect x="6" y="6" width="26" height="18" fill="var(--panel)" stroke="var(--line)" stroke-width="1"/>
+            <rect x="6" y="6" width="26" height="4" fill="var(--line)"/>
+            <rect x="38" y="10" width="30" height="16" fill="var(--panel)" stroke="var(--line)" stroke-width="1"/>
+            <rect x="38" y="10" width="30" height="4" fill="var(--line)"/>
+            <!-- 미니 캐릭터 -->
+            <rect x="76" y="22" width="8" height="6" fill="var(--accent)"/>
+            <rect x="77" y="18" width="6" height="4" fill="#f2d5b8"/>
+            <rect x="78" y="19" width="1" height="1" fill="#1d2440"/>
+            <rect x="81" y="19" width="1" height="1" fill="#1d2440"/>
+            <rect x="77" y="28" width="2" height="4" fill="#3a3f66"/>
+            <rect x="81" y="28" width="2" height="4" fill="#3a3f66"/>
+            <!-- 말풍선 -->
+            <rect x="60" y="14" width="22" height="8" fill="var(--text)"/>
+            <rect x="74" y="22" width="2" height="2" fill="var(--text)"/>
+            <rect x="63" y="17" width="10" height="2" fill="var(--panel-deep)"/>
+            <!-- 바닥(작업표시줄) -->
+            <rect x="0" y="34" width="96" height="6" fill="var(--line)"/>
+          </svg>
+        </div>
+        <div class="quest-body">
+          <div class="quest-top">
+            <span class="quest-rank">RANK A</span>
+            <span class="quest-status ing">진행 중 (Phase 2)</span>
+          </div>
+          <h3>미니미 — 데스크탑 AI 컴패니언 (desktop-pet)</h3>
+          <p class="quest-one">바탕화면 위를 돌아다니는 픽셀 캐릭터와 대화하는 상주형 데스크탑 AI 도구</p>
+
+          <div class="quest-www">
+            <div class="www-row">
+              <span class="www-key">무엇을</span>
+              <span>투명·항상 위·클릭통과 오버레이 위에서 캐릭터가 화면 하단을 배회하고, 더블클릭하면 채팅창이 열려 AI와 대화(스트리밍 응답, 페르소나, 세션 메모리)할 수 있는 Electron 앱.</span>
+            </div>
+            <div class="www-row">
+              <span class="www-key">왜</span>
+              <span>"항상 곁에 있는 AI"를 브라우저 탭이 아닌 OS 레벨에서 구현해 보고 싶었고, 창 플래그·IPC·프로세스 분리 같은 데스크탑 앱의 시스템 계층을 직접 다뤄 보기 위해.</span>
+            </div>
+            <div class="www-row">
+              <span class="www-key">어떻게</span>
+              <span>API 키·네트워크를 메인 프로세스에만 격리하고 렌더러에는 contextBridge IPC만 노출해 보안 경계를 지켰습니다. AI는 Provider 추상화로 설계해 Gemini·OpenAI 호환(LM Studio 포함) SSE 스트리밍 어댑터를 baseUrl 주입만으로 재사용합니다.</span>
+            </div>
+          </div>
+
+          <div class="tags">
+            <span class="tag">Electron</span><span class="tag">Node.js</span>
+            <span class="tag">Gemini API</span><span class="tag">OpenAI 호환 API</span>
+            <span class="tag">SSE 스트리밍</span><span class="tag">IPC</span>
+          </div>
+          <div class="quest-links">
+            <a href="https://github.com/yongchaeeun/desktop-pet" target="_blank" rel="noopener">GitHub 저장소 →</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- 퀘스트 2: AI 채팅 프론트엔드 -->
+      <article class="win quest reveal">
+        <div class="quest-shot">
+          <svg viewBox="0 0 96 40" role="img" aria-label="AI 채팅 프론트엔드 픽셀 아트: 사이드바와 대화 말풍선이 있는 채팅 화면" shape-rendering="crispEdges">
+            <rect width="96" height="40" fill="var(--panel-deep)"/>
+            <!-- 사이드바 -->
+            <rect x="4" y="4" width="20" height="32" fill="var(--panel)" stroke="var(--line)" stroke-width="1"/>
+            <rect x="7" y="8" width="14" height="3" fill="var(--accent)"/>
+            <rect x="7" y="14" width="14" height="2" fill="var(--line)"/>
+            <rect x="7" y="19" width="14" height="2" fill="var(--line)"/>
+            <rect x="7" y="24" width="14" height="2" fill="var(--line)"/>
+            <!-- 채팅 말풍선 -->
+            <rect x="30" y="6" width="42" height="8" fill="var(--panel)" stroke="var(--line)" stroke-width="1"/>
+            <rect x="33" y="9" width="28" height="2" fill="var(--text-dim)"/>
+            <rect x="48" y="18" width="42" height="8" fill="var(--accent)" opacity=".85"/>
+            <rect x="51" y="21" width="28" height="2" fill="var(--bg)"/>
+            <!-- 입력창 -->
+            <rect x="30" y="30" width="60" height="6" fill="var(--panel)" stroke="var(--line-bright)" stroke-width="1"/>
+            <rect x="33" y="32" width="2" height="2" fill="var(--accent)"/>
+          </svg>
+        </div>
+        <div class="quest-body">
+          <div class="quest-top">
+            <span class="quest-rank">RANK A</span>
+            <span class="quest-status clear">CLEAR (M2)</span>
+          </div>
+          <h3>RP 채팅 프론트엔드 (rp-frontend)</h3>
+          <p class="quest-one">실리태번·마리나라 계열을 참고해 밑바닥부터 만든 AI 롤플레잉 채팅 웹앱</p>
+
+          <div class="quest-www">
+            <div class="www-row">
+              <span class="www-key">무엇을</span>
+              <span>캐릭터 카드·프리셋·세션 관리·백업/공유 기능을 갖춘 React SPA. Cloudflare Workers 프록시를 통해 LLM API에 연결하고, 모든 데이터는 브라우저 IndexedDB에 저장됩니다.</span>
+            </div>
+            <div class="www-row">
+              <span class="www-key">왜</span>
+              <span>기존 도구(실리태번)는 무겁고 설치가 필요해서, "브라우저만 있으면 되는" 가벼운 대안을 직접 설계·구현하며 프론트엔드 아키텍처와 API 연동 전 과정을 경험하기 위해.</span>
+            </div>
+            <div class="www-row">
+              <span class="www-key">어떻게</span>
+              <span>API 어댑터(buildRequest/parseResponse)를 앱 코드와 격리해 OpenAI·Gemini 등 어떤 응답 포맷이든 두 함수 수정만으로 대응합니다. 영속성은 Dexie(IndexedDB)로 서버 없이 해결하고, CSS 변수 기반 디자인 토큰으로 테마 시스템을 만들었습니다.</span>
+            </div>
+          </div>
+
+          <div class="tags">
+            <span class="tag">React</span><span class="tag">Vite</span>
+            <span class="tag">IndexedDB (Dexie)</span><span class="tag">Cloudflare Workers</span>
+            <span class="tag">LLM API 연동</span>
+          </div>
+          <div class="quest-links">
+            <a href="https://github.com/yongchaeeun/rp-frontend" target="_blank" rel="noopener">GitHub 저장소 →</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- 퀘스트 3: SQL 학습 게임 -->
+      <article class="win quest reveal">
+        <div class="quest-shot">
+          <svg viewBox="0 0 96 40" role="img" aria-label="SQL 학습 게임 픽셀 아트: 던전과 쿼리 입력창" shape-rendering="crispEdges">
+            <rect width="96" height="40" fill="var(--panel-deep)"/>
+            <!-- 던전 벽돌 -->
+            <rect x="0" y="0" width="96" height="6" fill="var(--line)"/>
+            <rect x="0" y="0" width="96" height="6" fill="var(--line)"/>
+            <rect x="8" y="2" width="1" height="4" fill="var(--panel-deep)"/>
+            <rect x="24" y="2" width="1" height="4" fill="var(--panel-deep)"/>
+            <rect x="40" y="2" width="1" height="4" fill="var(--panel-deep)"/>
+            <rect x="56" y="2" width="1" height="4" fill="var(--panel-deep)"/>
+            <rect x="72" y="2" width="1" height="4" fill="var(--panel-deep)"/>
+            <!-- 보물상자(테이블) -->
+            <rect x="66" y="14" width="14" height="10" fill="var(--accent2)"/>
+            <rect x="66" y="14" width="14" height="3" fill="color-mix(in srgb,var(--accent2) 70%,black)"/>
+            <rect x="72" y="18" width="2" height="3" fill="var(--panel-deep)"/>
+            <!-- 용사 -->
+            <rect x="16" y="16" width="8" height="6" fill="var(--accent3)"/>
+            <rect x="17" y="12" width="6" height="4" fill="#f2d5b8"/>
+            <rect x="18" y="13" width="1" height="1" fill="#1d2440"/>
+            <rect x="21" y="13" width="1" height="1" fill="#1d2440"/>
+            <rect x="17" y="22" width="2" height="4" fill="#3a3f66"/>
+            <rect x="21" y="22" width="2" height="4" fill="#3a3f66"/>
+            <rect x="25" y="15" width="4" height="2" fill="var(--text-dim)"/>
+            <!-- 쿼리 입력창 -->
+            <rect x="8" y="30" width="80" height="8" fill="var(--panel)" stroke="var(--line-bright)" stroke-width="1"/>
+            <rect x="11" y="33" width="20" height="2" fill="var(--accent)"/>
+            <rect x="33" y="33" width="2" height="2" fill="var(--accent2)"/>
+          </svg>
+        </div>
+        <div class="quest-body">
+          <div class="quest-top">
+            <span class="quest-rank">RANK B</span>
+            <span class="quest-status clear">CLEAR</span>
+          </div>
+          <h3>SQL 던전 — SQL 학습 게임 (sql game_final)</h3>
+          <p class="quest-one">SQL 쿼리를 입력해 스테이지를 클리어하며 배우는 학습용 게임</p>
+
+          <div class="quest-www">
+            <div class="www-row">
+              <span class="www-key">무엇을</span>
+              <span>SELECT부터 JOIN·GROUP BY까지, 단계별 퀘스트로 구성된 문제를 사용자가 직접 SQL로 풀면 실제 데이터베이스에서 실행·채점되는 학습 게임.</span>
+            </div>
+            <div class="www-row">
+              <span class="www-key">왜</span>
+              <span>SQL은 "직접 쳐 봐야" 는다는 경험에서 출발했습니다. 눈으로 읽는 강의 대신 즉각적인 성공/실패 피드백이 있는 게임 형식이 학습 동기를 유지시켜 준다고 판단했습니다.</span>
+            </div>
+            <div class="www-row">
+              <span class="www-key">어떻게</span>
+              <span>Python에서 MariaDB에 직접 연결해 사용자의 쿼리를 실행하고, 정답 쿼리의 결과 집합과 비교하는 방식으로 채점해 다양한 풀이를 허용했습니다. 스테이지·힌트 데이터도 DB 테이블로 관리해 문제 추가가 코드 수정 없이 가능합니다.</span>
+            </div>
+          </div>
+
+          <div class="tags">
+            <span class="tag">Python</span><span class="tag">MariaDB</span>
+            <span class="tag">SQL</span><span class="tag">DB 스키마 설계</span>
+          </div>
+          <div class="quest-links">
+            <a href="https://github.com/yongchaeeun/sql-game" target="_blank" rel="noopener">GitHub 저장소 →</a>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5. CONTACT — 세이브 포인트 ============ -->
+<section id="contact">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-tag">SAVE POINT</span>
+      <h2 class="sec-title"><span class="arrow">▶</span> 여정을 함께하시겠습니까?</h2>
+    </div>
+
+    <div class="win contact-win reveal">
+      <!-- 세이브 크리스탈 픽셀 아트 -->
+      <svg class="save-crystal" viewBox="0 0 24 32" role="img" aria-label="세이브 포인트 크리스탈 픽셀 아트" shape-rendering="crispEdges">
+        <rect x="10" y="2"  width="4" height="4" fill="var(--accent)"/>
+        <rect x="8"  y="6"  width="8" height="6" fill="var(--accent)"/>
+        <rect x="6"  y="12" width="12" height="8" fill="var(--accent)"/>
+        <rect x="8"  y="20" width="8" height="4" fill="var(--accent)"/>
+        <rect x="10" y="8"  width="3" height="6" fill="var(--text)" opacity=".7"/>
+        <rect x="4"  y="26" width="16" height="4" fill="var(--line)"/>
+        <rect x="6"  y="24" width="12" height="2" fill="var(--line)"/>
+      </svg>
+
+      <h3>기록이 저장되었습니다<span class="cursor" aria-hidden="true"></span></h3>
+      <p class="save-q">
+        다음 스테이지는 <strong>실무</strong>입니다.<br>
+        함께할 파티(팀)를 찾고 있습니다 — 편하게 연락 주세요.
+      </p>
+
+      <div class="contact-rows">
+        <a href="mailto:aion30206@ainuri.kr">
+          <span class="k">EMAIL</span> aion30206@ainuri.kr
+        </a>
+        <a href="https://github.com/yongchaeeun" target="_blank" rel="noopener">
+          <span class="k">GITHUB</span> github.com/yongchaeeun
+        </a>
+        <a href="https://yongchaeeun.tistory.com" target="_blank" rel="noopener">
+          <span class="k">BLOG</span> 학습 기록 블로그 (트러블슈팅 노트)
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div>© 2026 용채은. 모든 픽셀 아트는 CSS/SVG로 직접 제작했습니다.</div>
+  <div class="px">THANK YOU FOR PLAYING ★</div>
+</footer>
+
+<script>
+/* ===== 다크/라이트 토글: 기본은 시스템 설정, 선택은 localStorage에 저장 ===== */
+(function(){
+  const root = document.documentElement;
+  const btn  = document.getElementById('themeToggle');
+  const mq   = window.matchMedia('(prefers-color-scheme: light)');
+
+  function apply(theme){
+    if(theme){ root.setAttribute('data-theme', theme); }
+    else { root.setAttribute('data-theme', mq.matches ? 'light' : 'dark'); }
+  }
+  apply(localStorage.getItem('theme'));
+
+  mq.addEventListener('change', () => {
+    if(!localStorage.getItem('theme')) apply(null);
+  });
+
+  btn.addEventListener('click', () => {
+    const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    localStorage.setItem('theme', next);
+    apply(next);
+  });
+})();
+
+/* ===== 스크롤 등장 효과 (1회 페이드업, reduced-motion 시 CSS에서 무효화) ===== */
+(function(){
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if(e.isIntersecting){ e.target.classList.add('on'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+})();
+</script>
+</body>
+</html>
